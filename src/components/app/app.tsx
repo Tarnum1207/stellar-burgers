@@ -1,73 +1,85 @@
-import React, { FC } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
-import {
-  ConstructorPage,
-  Feed,
-  Login,
-  Register,
-  ForgotPassword,
-  ResetPassword,
-  Profile,
-  ProfileOrders,
-  NotFound404
-} from '@pages';
-import { Modal, OrderInfo, IngredientDetails } from '@components';
 import '../../index.css';
 import styles from './app.module.css';
-import { AppHeader } from '@components';
-import ProtectedRoute from './ProtectedRoute';
-import ProtectedModalRoute from './ProtectedModalRoute';
+import {
+  Feed,
+  NotFound404,
+  ConstructorPage,
+  Login,
+  ResetPassword,
+  Register,
+  ForgotPassword,
+  ProfileOrders,
+  Profile
+} from '@pages';
+import { Route, Routes, useNavigate, useLocation } from 'react-router-dom';
+import { ProtectedRoute } from './ProtectedRoute';
+import { useEffect } from 'react';
+import { fetchIngredients } from '../../slices/ingredientsSlice';
+import { AppHeader, Modal, OrderInfo, IngredientDetails } from '@components';
+import { useDispatch } from '../../services/store';
+import { verifyUser } from '../../slices/profileUserSlice';
 
-const App: FC = () => {
+const App = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const location = useLocation();
-  const isModalOpen =
-    location.pathname.includes('/feed/') ||
-    location.pathname.includes('/ingredients/') ||
-    location.pathname.includes('/profile/orders/');
+  const backgroundPosition = location.state?.background;
 
-  // Mock auth status - replace with actual auth logic
-  const isLoggedIn = false; // replace this with actual authentication check
+  useEffect(() => {
+    dispatch(fetchIngredients());
+    dispatch(verifyUser());
+  }, [dispatch]);
 
-  const handleClose = () => {
-    window.history.back(); // Закрытие модального окна
-  };
+  const renderModalRoute = (
+    path: string,
+    title: string,
+    onClose: () => void,
+    children: JSX.Element
+  ) => (
+    <Route
+      path={path}
+      element={
+        <Modal title={title} onClose={onClose}>
+          {children}
+        </Modal>
+      }
+    />
+  );
 
   return (
     <div className={styles.app}>
       <AppHeader />
-      <Routes>
+      <Routes location={backgroundPosition || location}>
         <Route path='/' element={<ConstructorPage />} />
         <Route path='/feed' element={<Feed />} />
-
-        {/* Защищённые маршруты */}
         <Route
           path='/login'
           element={
-            <ProtectedRoute isLoggedIn={!isLoggedIn}>
+            <ProtectedRoute anonymous>
               <Login />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path='/register'
-          element={
-            <ProtectedRoute isLoggedIn={!isLoggedIn}>
-              <Register />
             </ProtectedRoute>
           }
         />
         <Route
           path='/forgot-password'
           element={
-            <ProtectedRoute isLoggedIn={!isLoggedIn}>
+            <ProtectedRoute anonymous>
               <ForgotPassword />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/register'
+          element={
+            <ProtectedRoute anonymous>
+              <Register />
             </ProtectedRoute>
           }
         />
         <Route
           path='/reset-password'
           element={
-            <ProtectedRoute isLoggedIn={!isLoggedIn}>
+            <ProtectedRoute anonymous>
               <ResetPassword />
             </ProtectedRoute>
           }
@@ -75,7 +87,7 @@ const App: FC = () => {
         <Route
           path='/profile'
           element={
-            <ProtectedRoute isLoggedIn={isLoggedIn}>
+            <ProtectedRoute>
               <Profile />
             </ProtectedRoute>
           }
@@ -83,51 +95,56 @@ const App: FC = () => {
         <Route
           path='/profile/orders'
           element={
-            <ProtectedRoute isLoggedIn={isLoggedIn}>
+            <ProtectedRoute>
               <ProfileOrders />
             </ProtectedRoute>
           }
         />
 
-        <Route path='*' element={<NotFound404 />} />
+        {renderModalRoute(
+          '/feed/:number',
+          'Детали заказа',
+          () => navigate('/feed'),
+          <OrderInfo />
+        )}
+        {renderModalRoute(
+          '/ingredients/:id',
+          'Детали ингредиента',
+          () => navigate('/'),
+          <IngredientDetails />
+        )}
+        {renderModalRoute(
+          '/profile/orders/:number',
+          'Детали заказа',
+          () => navigate('/profile/orders'),
+          <OrderInfo />
+        )}
 
-        {/* Модальные окна */}
-        <Route
-          path='/feed/:number'
-          element={
-            isModalOpen && (
-              <Modal title='Order Info' onClose={handleClose}>
-                <OrderInfo />
-              </Modal>
-            )
-          }
-        />
-        <Route
-          path='/ingredients/:id'
-          element={
-            isModalOpen && (
-              <Modal title='Ingredient Details' onClose={handleClose}>
-                <IngredientDetails />
-              </Modal>
-            )
-          }
-        />
-        <Route
-          path='/profile/orders/:number'
-          element={
-            <ProtectedModalRoute
-              isLoggedIn={isLoggedIn}
-              modalContent={
-                isModalOpen && (
-                  <Modal title='Order Info' onClose={handleClose}>
-                    <OrderInfo />
-                  </Modal>
-                )
-              }
-            />
-          }
-        />
+        <Route path='*' element={<NotFound404 />} />
       </Routes>
+
+      {backgroundPosition && (
+        <Routes>
+          {renderModalRoute(
+            '/feed/:number',
+            'Детали заказа',
+            () => navigate('/feed'),
+            <OrderInfo />
+          )}
+          {renderModalRoute(
+            '/ingredients/:id',
+            'Детали ингредиента',
+            () => navigate('/'),
+            <IngredientDetails />
+          )}
+          {renderModalRoute(
+            '/profile/orders/:number',
+            'Детали заказа',
+            () => navigate('/profile/orders'),
+            <OrderInfo />
+          )}
+        </Routes>
+      )}
     </div>
   );
 };

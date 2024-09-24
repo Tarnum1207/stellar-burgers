@@ -43,7 +43,6 @@ export const ingredientsSlice = createSlice({
   }
 });
 
-// Селекторы
 const selectIngredients = (state: { ingredients: TIngredientsSliceState }) =>
   state.ingredients.ingredients;
 const selectIsLoading = (state: { ingredients: TIngredientsSliceState }) =>
@@ -57,7 +56,6 @@ const selectByType =
       (ingredient) => ingredient.type === type
     );
 
-// Экспортируем селекторы
 export const selectBuns = selectByType('bun');
 export const selectSauces = selectByType('sauce');
 export const selectMains = selectByType('main');

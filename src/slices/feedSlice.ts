@@ -26,7 +26,6 @@ export const initialState: TFeedSliceState = {
   }
 };
 
-// Асинхронный thunk для получения информации о заказах
 export const fetchFeeds = createAsyncThunk('orders/get', async () => {
   const response = await getFeedsApi();
   return response;
@@ -44,7 +43,6 @@ export const feedSlice = createSlice({
   }
 });
 
-// Обработчики для каждого состояния
 const handleFetchFeedsPending = (state: TFeedSliceState) => {
   state.isLoading = true;
   state.error = null;
@@ -62,7 +60,6 @@ const handleFetchFeedsRejected = (state: TFeedSliceState, action: any) => {
   state.error = action.error.message as string;
 };
 
-// Селекторы с использованием createSelector
 const selectFeedState = (state: { feed: TFeedSliceState }) => state.feed;
 
 export const selectOrders = createSelector(

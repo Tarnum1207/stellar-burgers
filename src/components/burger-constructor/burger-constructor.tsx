@@ -20,13 +20,13 @@ export const BurgerConstructor: FC = () => {
   const constructorItems = useSelector(getConstructorState);
   const orderRequest = useSelector(selectquery);
   const orderModalData = useSelector(selectOrders);
-  const navigate = useNavigate;
+  const navigate = useNavigate();
   const { user } = useSelector(selectProfileUser);
 
   const onOrderClick = () => {
     if (!constructorItems.bun || orderRequest) return;
     if (!user) {
-      navigate(), { replace: true };
+      navigate('/login', { replace: true });
       return;
     }
     const orderIngredients = [
@@ -36,11 +36,22 @@ export const BurgerConstructor: FC = () => {
     ];
     dispatch(fetchOrders(orderIngredients));
   };
+
   const closeOrderModal = () => {
     dispatch(clearConstructor());
     dispatch(clearOrders());
   };
-  const price = useMemo(() => [constructorItems]);
+
+  const price = useMemo(
+    () =>
+      (constructorItems.bun ? constructorItems.bun.price * 2 : 0) +
+      constructorItems.ingredients.reduce(
+        (s: number, v: TConstructorIngredient) => s + v.price,
+        0
+      ),
+    [constructorItems]
+  );
+
   return (
     <BurgerConstructorUI
       price={price}

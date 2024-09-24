@@ -10,7 +10,6 @@ import {
 } from '../utils/burger-api';
 import { setCookie, deleteCookie, getCookie } from '../utils/cookie';
 
-// Определение типа для состояния профиля пользователя
 type TProfileState = {
   user: TUser | null;
   isDataLoading: boolean;
@@ -18,7 +17,6 @@ type TProfileState = {
   isLoading: boolean;
 };
 
-// Начальное состояние
 const initialState: TProfileState = {
   user: null,
   isDataLoading: false,
@@ -26,7 +24,6 @@ const initialState: TProfileState = {
   isLoading: false
 };
 
-// Общая функция для обработки состояния загрузки и ошибок
 const handlePending = (state: TProfileState) => {
   state.isLoading = true;
   state.error = null;
@@ -41,7 +38,6 @@ const handleRejected = (
     typeof action.payload === 'string' ? action.payload : 'Ошибка выполнения';
 };
 
-// Создание асинхронных действий
 export const getUser = createAsyncThunk('user/get', async () => getUserApi());
 
 export const verifyUser = createAsyncThunk(
@@ -59,9 +55,9 @@ export const updateUser = createAsyncThunk(
   async (user: Partial<TRegisterData>, { rejectWithValue }) => {
     try {
       const updatedUser = await updateUserApi(user);
-      return updatedUser; // Возвращаем обновленные данные пользователя
+      return updatedUser;
     } catch (error) {
-      return rejectWithValue('Обновление пользователя не удалось'); // Возвращаем сообщение об ошибке
+      return rejectWithValue('Обновление пользователя не удалось');
     }
   }
 );
@@ -164,9 +160,7 @@ export const profileSlice = createSlice({
   }
 });
 
-// Экспорт действий и редюсера
 export const { authChecked } = profileSlice.actions;
 export default profileSlice.reducer;
 
-// Селектор для получения пользователя
 export const selectProfileUser = (state: { user: TProfileState }) => state.user;

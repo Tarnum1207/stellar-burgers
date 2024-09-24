@@ -1,12 +1,11 @@
 import { nanoid, PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { TIngredient, TConstructorIngredient } from '@utils-types';
-// Определяем интерфейс состояния конструктора бургера
+
 interface IBurgerConstructorState {
   bun: TConstructorIngredient | null;
   ingredients: TConstructorIngredient[];
 }
 
-// Начальное состояние конструктора бургера
 const initialState: IBurgerConstructorState = {
   bun: null,
   ingredients: []
@@ -19,7 +18,6 @@ export const burgerConstructorSlice = createSlice({
     getConstructorState: (state) => state
   },
   reducers: {
-    // Редьюсеры для изменения состояния
     addIngredientToConstructor: {
       prepare: (item: TIngredient) => ({
         payload: { ...item, id: nanoid() }
@@ -49,12 +47,11 @@ export const burgerConstructorSlice = createSlice({
       const { from, to } = action.payload;
 
       if (from !== to) {
-        const [movedIngredient] = state.ingredients.splice(from, 1); // Удаляем элемент из original массива
-        state.ingredients.splice(to, 0, movedIngredient); // Вставляем его на новое место
+        const [movedIngredient] = state.ingredients.splice(from, 1);
+        state.ingredients.splice(to, 0, movedIngredient);
       }
     },
     clearConstructor: (state) => {
-      // Очистка конструктора
       state.ingredients = [];
       state.bun = null;
     }
@@ -68,5 +65,4 @@ export const {
   clearConstructor
 } = burgerConstructorSlice.actions;
 
-// Экспортируем селектор для получения состояния конструктора
 export const { getConstructorState } = burgerConstructorSlice.selectors;

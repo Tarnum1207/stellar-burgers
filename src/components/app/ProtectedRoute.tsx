@@ -1,20 +1,38 @@
-// src/components/ProtectedRoute.tsx
-import React, { FC } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import React from 'react';
+import { Preloader } from '../../components/ui/preloader/preloader';
+import { useLocation, Navigate } from 'react-router-dom';
+import { useSelector } from '../../services/store';
+import { selectProfileUser } from '../../slices/profileUserSlice';
 
-interface ProtectedRouteProps {
-  isLoggedIn: boolean; // Условие авторизации
+type ProtectedRouteProps = {
+  anonymous?: boolean;
   children: React.ReactElement;
-}
+};
 
-const ProtectedRoute: FC<ProtectedRouteProps> = ({ isLoggedIn, children }) => {
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  anonymous
+}) => {
   const location = useLocation();
+  const { user, isDataLoading } = useSelector(selectProfileUser);
 
-  if (!isLoggedIn) {
-    return <Navigate to='/login' state={{ from: location }} replace />;
-  }
+  const renderContent = () => {
+    if (!isDataLoading) {
+      return <Preloader />;
+    }
 
-  return children;
+    if (anonymous && user) {
+      return <Navigate replace to={location.state?.from || '/'} />;
+    }
+
+    if (!anonymous && !user) {
+      return <Navigate replace to='/login' state={{ from: location }} />;
+    }
+
+    return children;
+  };
+
+  return renderContent();
 };
 
 export default ProtectedRoute;

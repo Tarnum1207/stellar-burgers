@@ -7,7 +7,6 @@ import { TOrder } from '@utils-types';
 import { fetchFeeds, selectOrders } from '../../slices/feedSlice';
 
 export const Feed: FC = () => {
-  /** TODO: взять переменную из стора */
   const dispatch = useDispatch();
   const orders: TOrder[] = useSelector(selectOrders);
 
@@ -18,8 +17,6 @@ export const Feed: FC = () => {
   if (!orders.length) {
     return <Preloader />;
   }
-
-  <FeedUI orders={orders} handleGetFeeds={() => {}} />;
   return (
     <FeedUI
       orders={orders}
