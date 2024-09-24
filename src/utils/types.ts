@@ -26,6 +26,11 @@ export type TOrder = {
   ingredients: string[];
 };
 
+export type TNewOrderResponse = {
+  order: TOrder;
+  name: string;
+};
+
 export type TOrdersData = {
   orders: TOrder[];
   total: number;
@@ -35,6 +40,13 @@ export type TOrdersData = {
 export type TUser = {
   email: string;
   name: string;
+};
+
+export type TRegisterData = {
+  email: string; // Email пользователя
+  name: string; // Имя пользователя
+  password: string; // Пароль пользователя (обязательный)
+  confirmPassword?: string; // Подтверждение пароля (необязательный)
 };
 
 export type TTabMode = 'bun' | 'sauce' | 'main';
