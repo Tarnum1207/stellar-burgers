@@ -6,7 +6,7 @@ interface IBurgerConstructorState {
   ingredients: TConstructorIngredient[];
 }
 
-const initialState: IBurgerConstructorState = {
+export const initialState: IBurgerConstructorState = {
   bun: null,
   ingredients: []
 };
@@ -66,3 +66,5 @@ export const {
 } = burgerConstructorSlice.actions;
 
 export const { getConstructorState } = burgerConstructorSlice.selectors;
+
+export default burgerConstructorSlice.reducer;
