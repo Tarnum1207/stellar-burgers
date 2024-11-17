@@ -6,33 +6,38 @@ import {
 } from './activeOrdersSlice';
 
 describe('submittedOrdersSlice', () => {
-  test('fetchSubmitOrders.pending устанавливает fetchingStatus в true', () => {
-    const action = { type: fetchSubmitOrders.pending.type };
-    const state = submittedOrdersSlice.reducer(initialState, action);
-    expect(state.fetchingStatus).toBe(true);
-    expect(state.orders).toEqual([]);
-    expect(state.error).toBe(null);
+  test('должен включить fetchingStatus при вызове fetchSubmitOrders.pending', () => {
+    const pendingAction = { type: fetchSubmitOrders.pending.type };
+    const newState = submittedOrdersSlice.reducer(initialState, pendingAction);
+
+    expect(newState.fetchingStatus).toBe(true);
+    expect(newState.orders).toHaveLength(0);
+    expect(newState.error).toBeNull();
   });
 
-  test('fetchSubmitOrders.fulfilled устанавливает заказы и fetchingStatus в false', () => {
-    const ordersData = [{ id: '1', name: 'Order 1' }];
-    const action = {
+  test('должен обновить список заказов и выключить fetchingStatus при fetchSubmitOrders.fulfilled', () => {
+    const mockOrders = [{ id: '123', name: 'Test Order' }];
+    const fulfilledAction = {
       type: fetchSubmitOrders.fulfilled.type,
-      payload: ordersData
+      payload: mockOrders
     };
-    const state = submittedOrdersSlice.reducer(initialState, action);
-    expect(state.orders).toEqual(ordersData);
-    expect(state.fetchingStatus).toBe(false);
+    const newState = submittedOrdersSlice.reducer(initialState, fulfilledAction);
+
+    expect(newState.orders).toStrictEqual(mockOrders);
+    expect(newState.fetchingStatus).toBe(false);
+    expect(newState.error).toBeNull();
   });
 
-  test('fetchSubmitOrders.rejected устанавливает ошибку и fetchingStatus в false', () => {
-    const errorMessage = 'Error message';
-    const action = {
+  test('должен установить сообщение об ошибке и выключить fetchingStatus при fetchSubmitOrders.rejected', () => {
+    const error = 'Ошибка загрузки данных';
+    const rejectedAction = {
       type: fetchSubmitOrders.rejected.type,
-      error: { message: errorMessage }
+      error: { message: error }
     };
-    const state = submittedOrdersSlice.reducer(initialState, action);
-    expect(state.error).toBe(errorMessage);
-    expect(state.fetchingStatus).toBe(false);
+    const newState = submittedOrdersSlice.reducer(initialState, rejectedAction);
+
+    expect(newState.error).toBe(error);
+    expect(newState.fetchingStatus).toBe(false);
+    expect(newState.orders).toEqual([]);
   });
 });

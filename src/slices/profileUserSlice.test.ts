@@ -1,31 +1,36 @@
 import { profileSlice, getUser, initialState } from './profileUserSlice';
 import { expect, test } from '@jest/globals';
 
-describe('profileUserSlice', () => {
-  test('обрабатывает экшен getUser.pending', () => {
-    const action = { type: getUser.pending.type };
-    const state = profileSlice.reducer(initialState, action);
-    expect(state.isLoading).toBe(true);
-    expect(state.error).toBeNull();
+describe('Тестирование profileUserSlice', () => {
+  test('`getUser.pending` включает состояние загрузки', () => {
+    const pendingAction = { type: getUser.pending.type };
+    const updatedState = profileSlice.reducer(initialState, pendingAction);
+
+    expect(updatedState.isLoading).toBe(true);
+    expect(updatedState.error).toBeNull();
   });
 
-  test('обрабатывает экшен getUser.fulfilled', () => {
-    const action = {
+  test('`getUser.fulfilled` сохраняет данные пользователя', () => {
+    const userPayload = { name: 'Иван', email: 'ivan@mail.ru' };
+    const fulfilledAction = {
       type: getUser.fulfilled.type,
-      payload: { user: { name: 'Иван', email: 'ivan@mail.ru' } }
+      payload: { user: userPayload }
     };
-    const state = profileSlice.reducer(initialState, action);
-    expect(state.isLoading).toBe(false);
-    expect(state.user).toEqual({ name: 'Иван', email: 'ivan@mail.ru' });
+    const updatedState = profileSlice.reducer(initialState, fulfilledAction);
+
+    expect(updatedState.isLoading).toBe(false);
+    expect(updatedState.user).toEqual(userPayload);
   });
 
-  test('обрабатывает экшен getUser.rejected', () => {
-    const action = {
+  test('`getUser.rejected` обрабатывает ошибку', () => {
+    const errorMessage = 'Ошибка выполнения';
+    const rejectedAction = {
       type: getUser.rejected.type,
-      error: { message: 'Ошибка выполнения' }
+      error: { message: errorMessage }
     };
-    const state = profileSlice.reducer(initialState, action);
-    expect(state.isLoading).toBe(false);
-    expect(state.error).toBe('Ошибка выполнения');
+    const updatedState = profileSlice.reducer(initialState, rejectedAction);
+
+    expect(updatedState.isLoading).toBe(false);
+    expect(updatedState.error).toBe(errorMessage);
   });
 });

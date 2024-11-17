@@ -14,8 +14,8 @@
 // ***********************************************************
 
 // Import commands.js using ES2015 syntax:
-import './commands';
-import './customCommands';
+import '../e2e/commands';
+import '../e2e/ingredientCommands';
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')

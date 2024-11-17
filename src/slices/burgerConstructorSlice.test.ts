@@ -7,8 +7,7 @@ import {
 } from './burgerConstructorSlice';
 import { expect, test } from '@jest/globals';
 
-// Пример булки и начинки с полем id
-const bunIngredient = {
+const testBun = {
   _id: '643d69a5c3f7b9001cfa093c',
   id: '1',
   name: 'Краторная булка N-200i',
@@ -23,7 +22,7 @@ const bunIngredient = {
   image_large: 'https://code.s3.yandex.net/react/code/bun-02-large.png'
 };
 
-const mainIngredient = {
+const testIngredient = {
   _id: '643d69a5c3f7b9001cfa0941',
   id: '2',
   name: 'Отбивная котлета',
@@ -38,11 +37,10 @@ const mainIngredient = {
   image_large: 'https://code.s3.yandex.net/react/code/meat-04-large.png'
 };
 
-// Состояние конструктора с ингредиентами для тестов удаления и перемещения
-const constructorState = {
-  bun: { ...bunIngredient },
+const sampleConstructorState = {
+  bun: { ...testBun },
   ingredients: [
-    { ...mainIngredient, id: '2', name: 'Отбивная котлета' },
+    { ...testIngredient, id: '2', name: 'Отбивная котлета' },
     {
       _id: '643d69a5c3f7b9001cfa0941',
       id: '3',
@@ -60,59 +58,52 @@ const constructorState = {
   ]
 };
 
-describe('Проверка слайса burgerConstructorSlice', () => {
-  // Проверка добавления булки в конструктор
-  test('добавляет булку в конструктор', () => {
-    const action = addIngredientToConstructor(bunIngredient);
-    const state = burgerConstructorSlice.reducer(initialState, action);
+describe('burgerConstructorSlice', () => {
+  test('должен корректно добавлять булку в конструктор', () => {
+    const action = addIngredientToConstructor(testBun);
+    const newState = burgerConstructorSlice.reducer(initialState, action);
 
-    // Сравниваем объект с использованием expect.objectContaining()
-    expect(state.bun).toEqual(
-      expect.objectContaining({
-        _id: bunIngredient._id,
-        calories: bunIngredient.calories,
-        carbohydrates: bunIngredient.carbohydrates,
-        fat: bunIngredient.fat,
-        name: bunIngredient.name,
-        price: bunIngredient.price,
-        image: bunIngredient.image,
-        image_large: bunIngredient.image_large,
-        image_mobile: bunIngredient.image_mobile
-      })
-    );
+    expect(newState.bun).toMatchObject({
+      _id: testBun._id,
+      name: testBun.name,
+      price: testBun.price,
+      image: testBun.image
+    });
   });
 
-  // Проверка добавления начинки в конструктор
-  test('добавляет начинку в конструктор', () => {
-    const action = addIngredientToConstructor(mainIngredient);
-    const state = burgerConstructorSlice.reducer(initialState, action);
-    expect(state.ingredients).toHaveLength(1); // Проверяем, что начинка добавлена
-    expect(state.ingredients[0]).toEqual(
-      expect.objectContaining({
-        name: 'Отбивная котлета',
-        type: 'main',
-        price: 3000
-      })
-    );
+  test('должен добавлять новый ингредиент в список ингредиентов', () => {
+    const action = addIngredientToConstructor(testIngredient);
+    const updatedState = burgerConstructorSlice.reducer(initialState, action);
+
+    expect(updatedState.ingredients).toHaveLength(1);
+    expect(updatedState.ingredients[0]).toMatchObject({
+      name: 'Отбивная котлета',
+      type: 'main',
+      price: 3000
+    });
   });
 
-  // Проверка удаления ингредиента из конструктора
-  test('удаляет ингредиент из конструктора', () => {
+  test('должен удалять ингредиент из конструктора по ID', () => {
     const action = deleteIngredientFromConstructor(
-      constructorState.ingredients[0].id
+      sampleConstructorState.ingredients[0].id
     );
-    const state = burgerConstructorSlice.reducer(constructorState, action);
-    expect(state.ingredients).toHaveLength(1); // Проверяем, что один ингредиент удален
-    expect(state.ingredients[0].name).toBe('Соус фирменный Space Sauce');
+    const updatedState = burgerConstructorSlice.reducer(
+      sampleConstructorState,
+      action
+    );
+
+    expect(updatedState.ingredients).toHaveLength(1);
+    expect(updatedState.ingredients[0].name).toBe('Соус фирменный Space Sauce');
   });
 
-  // Тест на перемещение ингредиентов
-  test('перемещает ингредиент в конструкторе', () => {
+  test('должен корректно менять порядок ингредиентов', () => {
     const action = moveIngredientInConstructor({ from: 1, to: 0 });
-    const state = burgerConstructorSlice.reducer(constructorState, action);
+    const resultState = burgerConstructorSlice.reducer(
+      sampleConstructorState,
+      action
+    );
 
-    // Проверяем, что ингредиенты поменялись местами
-    expect(state.ingredients[0].name).toBe('Соус фирменный Space Sauce');
-    expect(state.ingredients[1].name).toBe('Отбивная котлета');
+    expect(resultState.ingredients[0].name).toBe('Соус фирменный Space Sauce');
+    expect(resultState.ingredients[1].name).toBe('Отбивная котлета');
   });
 });

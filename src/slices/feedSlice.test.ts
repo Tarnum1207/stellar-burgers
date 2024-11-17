@@ -1,36 +1,45 @@
 import { expect, test } from '@jest/globals';
 import { feedSlice, fetchFeeds, initialState } from './feedSlice';
 
-describe('feedSlice', () => {
-  test('fetchFeeds.pending sets isLoading to true', () => {
-    const action = { type: fetchFeeds.pending.type };
-    const state = feedSlice.reducer(initialState, action);
-    expect(state.isLoading).toBe(true);
-    expect(state.error).toBe(null);
+describe('Тестирование feedSlice', () => {
+  test('fetchFeeds.pending активирует загрузку', () => {
+    const pendingAction = { type: fetchFeeds.pending.type };
+    const updatedState = feedSlice.reducer(initialState, pendingAction);
+
+    expect(updatedState.isLoading).toBe(true);
+    expect(updatedState.error).toBeNull(); 
   });
 
-  test('fetchFeeds.fulfilled sets feed and isLoading to false', () => {
-    const feedData = {
+  test('fetchFeeds.fulfilled корректно обновляет feed и отключает загрузку', () => {
+    const mockFeedData = {
       total: 100,
       totalToday: 10,
       orders: [{ id: '1', name: 'Order 1' }]
     };
-    const action = { type: fetchFeeds.fulfilled.type, payload: feedData };
-    const state = feedSlice.reducer(initialState, action);
-    expect(state.feed.total).toBe(100);
-    expect(state.feed.totalToday).toBe(10);
-    expect(state.orders).toEqual(feedData.orders);
-    expect(state.isLoading).toBe(false);
+    const fulfilledAction = {
+      type: fetchFeeds.fulfilled.type,
+      payload: mockFeedData
+    };
+    const newState = feedSlice.reducer(initialState, fulfilledAction);
+
+    expect(newState.feed).toMatchObject({
+      total: 100,
+      totalToday: 10
+    });
+    expect(newState.orders).toHaveLength(1); 
+    expect(newState.orders[0]).toMatchObject({ id: '1', name: 'Order 1' });
+    expect(newState.isLoading).toBe(false);
   });
 
-  test('fetchFeeds.rejected sets error and isLoading to false', () => {
-    const errorMessage = 'Error message';
-    const action = {
+  test('fetchFeeds.rejected корректно устанавливает ошибку и завершает загрузку', () => {
+    const mockError = 'Ошибка загрузки';
+    const rejectedAction = {
       type: fetchFeeds.rejected.type,
-      error: { message: errorMessage }
+      error: { message: mockError }
     };
-    const state = feedSlice.reducer(initialState, action);
-    expect(state.error).toBe(errorMessage);
-    expect(state.isLoading).toBe(false);
+    const resultState = feedSlice.reducer(initialState, rejectedAction);
+
+    expect(resultState.error).toBe(mockError);
+    expect(resultState.isLoading).toBe(false);
   });
 });

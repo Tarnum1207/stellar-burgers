@@ -1,13 +1,8 @@
-import {
-  ordersSlice,
-  fetchOrders,
-  clearOrders,
-  initialState
-} from './ordersSlice';
+import { ordersSlice, fetchOrders, clearOrders, initialState } from './ordersSlice';
 import { expect, test } from '@jest/globals';
 
-describe('Проверка слайса ordersSlice', () => {
-  const mockOrder = {
+describe('Тестирование ordersSlice', () => {
+  const testOrder = {
     _id: '671239b2d829be001c776eb8',
     number: 56854,
     status: 'done',
@@ -17,39 +12,44 @@ describe('Проверка слайса ordersSlice', () => {
     ingredients: ['643d69a5c3f7b9001cfa093d', '643d69a5c3f7b9001cfa0943']
   };
 
-  test('устанавливает loading при запросе создания заказа', () => {
-    const action = { type: fetchOrders.pending.type };
-    const state = ordersSlice.reducer(initialState, action);
-    expect(state.loading).toBe(true);
-    expect(state.orderClaim).toBe(true);
-    expect(state.orderError).toBeNull();
+  test('`fetchOrders.pending` включает состояние загрузки', () => {
+    const pendingAction = { type: fetchOrders.pending.type };
+    const updatedState = ordersSlice.reducer(initialState, pendingAction);
+
+    expect(updatedState.loading).toBe(true);
+    expect(updatedState.orderClaim).toBe(true);
+    expect(updatedState.orderError).toBeNull();
   });
 
-  test('успешно создает заказ', () => {
-    const action = {
+  test('`fetchOrders.fulfilled` сохраняет детали заказа', () => {
+    const fulfilledAction = {
       type: fetchOrders.fulfilled.type,
-      payload: { order: mockOrder }
+      payload: { order: testOrder }
     };
-    const state = ordersSlice.reducer(initialState, action);
-    expect(state.loading).toBe(false);
-    expect(state.orderDetails).toEqual(mockOrder);
-    expect(state.orderClaim).toBe(false);
+    const updatedState = ordersSlice.reducer(initialState, fulfilledAction);
+
+    expect(updatedState.loading).toBe(false);
+    expect(updatedState.orderDetails).toMatchObject(testOrder);
+    expect(updatedState.orderClaim).toBe(false);
   });
 
-  test('обрабатывает ошибку при создании заказа', () => {
-    const action = {
+  test('`fetchOrders.rejected` обрабатывает ошибку', () => {
+    const errorMessage = 'Ошибка создания заказа';
+    const rejectedAction = {
       type: fetchOrders.rejected.type,
-      error: { message: 'Ошибка создания заказа' }
+      error: { message: errorMessage }
     };
-    const state = ordersSlice.reducer(initialState, action);
-    expect(state.loading).toBe(false);
-    expect(state.orderError).toBe('Ошибка создания заказа');
+    const updatedState = ordersSlice.reducer(initialState, rejectedAction);
+
+    expect(updatedState.loading).toBe(false);
+    expect(updatedState.orderError).toBe(errorMessage);
   });
 
-  test('очищает данные заказа', () => {
-    const stateWithOrder = { ...initialState, orderDetails: mockOrder };
-    const action = clearOrders();
-    const state = ordersSlice.reducer(stateWithOrder, action);
-    expect(state.orderDetails).toBeNull();
+  test('`clearOrders` сбрасывает детали заказа', () => {
+    const stateWithOrderDetails = { ...initialState, orderDetails: testOrder };
+    const clearAction = clearOrders();
+    const updatedState = ordersSlice.reducer(stateWithOrderDetails, clearAction);
+
+    expect(updatedState.orderDetails).toBeNull();
   });
 });

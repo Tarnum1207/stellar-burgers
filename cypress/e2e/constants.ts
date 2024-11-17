@@ -1,7 +1,7 @@
 export const globalInfo = {
     localUrl: 'http://localhost:4000/',
     createOrderBtnData: '[data-cy="buttonCreateOrder"]',
-    orderNumber: '911'
+    orderNumber: '111'
   };
   export const modal = {
     title: 'Детали ингредиента',
@@ -12,7 +12,7 @@ export const globalInfo = {
     main: {
       constructor: '[data-cy="constructorMain"]',
       data: '[data-cy="mains"]',
-      name: 'Биокотлета из марсианской Магнолии'
+      name: 'Отбивная котлета'
     },
     bun: {
       constructor: '[data-cy="constructorBun"]',
@@ -22,7 +22,7 @@ export const globalInfo = {
     sauce: {
       constructor: '[data-cy="constructorMain"]',
       data: '[data-cy="sauces"]',
-      name: 'Соус Spicy-X'
+      name: 'Соус фирменный Space Sauce'
     },
     addButton: 'Добавить'
   };

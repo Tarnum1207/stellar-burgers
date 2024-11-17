@@ -1,90 +1,66 @@
-import { ingredients, modal, globalInfo } from '../support/selectors';
+import { ingredients, modal, globalInfo } from './constants';
 
-describe('Тесты для страницы конструктора бургера', () => {
+describe('Тестирование страницы конструктора бургера', () => {
   beforeEach(() => {
-    cy.intercept('GET', '/api/ingredients', { fixture: 'ingredients.json' });
-    cy.intercept('POST', '/api/orders', { fixture: 'order.json' }).as(
-      'createOrder'
-    );
-    cy.intercept('GET', '/api/auth/user', { fixture: 'user.json' }).as(
-      'getUser'
-    );
+    // Имитация запросов и установка начальных данных
+    cy.intercept('GET', '/api/ingredients', { fixture: 'ingredients.json' }).as('getIngredients');
+    cy.intercept('POST', '/api/orders', { fixture: 'orders.json' }).as('createOrder');
+    cy.intercept('GET', '/api/auth/user', { fixture: 'profileUser.json' }).as('getUser');
+
+    // Настройка токенов для сессии пользователя
     cy.setCookie('accessToken', 'testAccessToken');
     localStorage.setItem('refreshToken', 'testRefreshToken');
+
+    // Переход на главную страницу и ожидание загрузки данных
     cy.visit(globalInfo.localUrl);
+    cy.wait('@getIngredients');
   });
 
   afterEach(() => {
+    // Очистка данных после тестов
     cy.clearLocalStorage();
     cy.clearCookies();
   });
 
-  it('Добавление ингредиента из списка в конструктор', () => {
-    // Добавление булки
-    cy.addingIngredient(
-      ingredients.bun.data,
-      ingredients.bun.constructor,
-      ingredients.bun.name
-    );
-    // Добавление начинки
-    cy.addingIngredient(
-      ingredients.main.data,
-      ingredients.main.constructor,
-      ingredients.main.name
-    );
-    // Добавление соуса
-    cy.addingIngredient(
-      ingredients.sauce.data,
-      ingredients.sauce.constructor,
-      ingredients.sauce.name
-    );
+  it('Добавление ингредиентов в конструктор', () => {
+    // Добавление ингредиентов различных типов в конструктор
+    [ingredients.bun, ingredients.main, ingredients.sauce].forEach((item) => {
+      cy.addingIngredient(item.data, item.constructor, item.name);
+    });
+
+    // Проверка, что все ингредиенты добавлены
+    [ingredients.bun, ingredients.main, ingredients.sauce].forEach((item) => {
+      cy.get(item.constructor).should('contain', item.name);
+    });
   });
 
-  it('Работа модальных окон', () => {
-    // Проверка при клике на булку
-    cy.checkIngredientModal(
-      ingredients.bun.name,
-      modal.closeButtonData,
-      modal.overlayData
-    );
-    // Проверка при клике на начинку
-    cy.checkIngredientModal(
-      ingredients.main.name,
-      modal.closeButtonData,
-      modal.overlayData
-    );
-    // Проверка при клике на соус
-    cy.checkIngredientModal(
-      ingredients.sauce.name,
-      modal.closeButtonData,
-      modal.overlayData
-    );
+  it('Тестирование модальных окон для ингредиентов', () => {
+    // Проверка открытия и закрытия модальных окон для каждого типа ингредиента
+    [ingredients.bun, ingredients.main, ingredients.sauce].forEach((item) => {
+      cy.checkIngredientModal(item.name, modal.closeButtonData, modal.overlayData);
+    });
   });
 
-  it('Создание заказа', () => {
-    // Добавление ингредиентов
+  it('Проверка создания заказа', () => {
+    // Добавление всех необходимых ингредиентов в заказ
     cy.addAllIngredientsToCart();
 
     // Оформление заказа
     cy.get(globalInfo.createOrderBtnData).click();
+
+    // Ожидание выполнения запроса на создание заказа
+    cy.wait('@createOrder');
+
+    // Проверка номера заказа
     cy.contains(globalInfo.orderNumber).should('exist');
 
-    // Закрытие модального окна
+    // Закрытие модального окна и проверка очистки конструктора
     cy.get(modal.overlayData).click({ force: true });
     cy.contains(globalInfo.orderNumber).should('not.exist');
 
-    // Проверка, что конструктор пуст
-    cy.get(ingredients.bun.constructor).should(
-      'not.contain',
-      ingredients.bun.name
-    );
-    cy.get(ingredients.main.constructor).should(
-      'not.contain',
-      ingredients.main.name
-    );
-    cy.get(ingredients.main.constructor).should(
-      'not.contain',
-      ingredients.sauce.name
-    );
+    // Проверка, что конструктор очищен
+    [ingredients.bun, ingredients.main, ingredients.sauce].forEach((item) => {
+      cy.get(item.constructor).should('not.contain', item.name);
+    });
   });
 });
