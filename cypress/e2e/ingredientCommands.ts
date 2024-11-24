@@ -43,30 +43,35 @@ Cypress.Commands.add('addAllIngredientsToCart', () => {
 // Проверка модального окна для выбранного ингредиента
 Cypress.Commands.add('checkIngredientModal', (ingredientName, buttonClose, overlay) => {
   // Открытие модального окна
-  cy.contains(ingredientName)
-    .should('exist') // Убедиться, что ингредиент существует
-    .click();
-  cy.contains(modal.title)
-    .should('exist'); // Проверка, что модальное окно открыто
+  cy.contains(ingredientName) // Находим ингредиент по имени
+    .should('exist') // Убедиться, что элемент существует
+    .click(); // Клик по ингредиенту, чтобы открыть модальное окно
+
+  // Проверка, что в модальном окне отображается правильное название ингредиента
+  cy.contains('Детали ингредиента') // Проверка, что модальное окно открылось
+    .should('exist');
+  cy.contains(ingredientName) // Проверяем, что в модальном окне отображается имя ингредиента
+    .should('exist'); 
 
   // Закрытие модального окна
   cy.get(buttonClose)
     .should('exist') // Проверка кнопки закрытия
     .click();
-  cy.contains(modal.title)
+  cy.contains('Детали ингредиента')
     .should('not.exist'); // Проверка, что модальное окно закрыто
 
   // Повторное открытие модального окна
-  cy.contains(ingredientName)
+  cy.contains(ingredientName) // Находим ингредиент
     .should('exist')
     .click();
-  cy.contains(modal.title)
-    .should('exist');
+  cy.contains('Детали ингредиента')
+    .should('exist'); // Проверка, что модальное окно открылось
 
   // Закрытие модального окна по клику на оверлей
   cy.get(overlay)
     .should('exist') // Проверка, что оверлей существует
     .click({ force: true }); // Принудительный клик
-  cy.contains(modal.title)
-    .should('not.exist');
+  cy.contains('Детали ингредиента')
+    .should('not.exist'); // Проверка, что модальное окно закрыто
 });
+
