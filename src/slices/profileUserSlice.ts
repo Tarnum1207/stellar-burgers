@@ -17,7 +17,7 @@ type TProfileState = {
   isLoading: boolean;
 };
 
-const initialState: TProfileState = {
+export const initialState: TProfileState = {
   user: null,
   isDataLoading: false,
   error: null,
