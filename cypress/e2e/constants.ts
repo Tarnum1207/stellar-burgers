@@ -6,7 +6,8 @@ export const globalInfo = {
   export const modal = {
     title: 'Детали ингредиента',
     closeButtonData: '[data-cy="modalButtonClose"]',
-    overlayData: '[data-cy="modalOverlay"]'
+    overlayData: '[data-cy="modalOverlay"]',
+    data: '[data-cy="Modal"]'
   };
   export const ingredients = {
     main: {
